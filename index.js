@@ -9,6 +9,46 @@ const Category = require("./models/Category");
 //middleware
 app.use(express.json());
 
+// custom middlware on application level
+// app.use((req, res, next) => {
+
+//     console.log(`${req.method} ${req.url}`);
+//     console.log(req.query.q);
+//     if(req.query.q == "123") {
+        
+//         req.qid = req.query.q;
+
+//         next();
+//     } else {
+//         res.status(400).json({
+//             message: "Id is not correct, You are not alloewd to go"
+//         })
+//     }
+
+// });
+
+
+// Route level middleware
+const checkMiddleware = (req, res, next) => {
+
+    console.log(`${req.method} ${req.url}`);
+    console.log(req.query.q);
+    if(req.query.q == "123") {
+        
+        req.qid = req.query.q;
+
+        next();
+    } else {
+        res.status(400).json({
+            message: "Id is not correct, You are not alloewd to go"
+        })
+    }
+
+};
+
+
+
+
 app.get('/', (req, res) => {
     res.send('Hello World!');
 
@@ -103,10 +143,10 @@ app.post("/category/create", async (req, res) => {
 });
 
 // get all categories
-app.get("/categories", async (req, res) => {
-    
-    try {
+app.get("/categories", checkMiddleware, async (req, res) => {
 
+    try {
+        console.log("Category: quid", req.qid);
         const categories = await Category.find();
 
         return res.json({
@@ -128,10 +168,10 @@ app.get("/categories", async (req, res) => {
 // get single category
 app.get("/category/get/:id", async (req, res) => {
     try {
-        
+
         const id = req.params.id;
         const category = await Category.findById(id);
-        
+
         return res.json({
             status: "Ok",
             category: category
@@ -149,7 +189,7 @@ app.get("/category/get/:id", async (req, res) => {
 // delete a category
 app.delete("/category/delete/:id", async (req, res) => {
     try {
-        
+
         const id = req.params.id;
         await Category.findByIdAndDelete(id);
 
@@ -170,20 +210,27 @@ app.delete("/category/delete/:id", async (req, res) => {
 // update a category
 app.put("/category/update/:id", async (req, res) => {
     try {
-        
+
         const id = req.params.id;
         const data = req.body;
-        const updatedCategory = await Category.findByIdAndUpdate(id, data, {new: true, runValidators: true});
+        //const updatedCategory = await Category.findByIdAndUpdate(id, data, {new: true, runValidators: true});
+
+        // Use updateOne (does not return the updated document)
+        const updateResult = await Category.updateOne(
+            { _id: id },
+            { name: 'updateOne' }
+        );
+        console.log('updateOne result:', updateResult);
 
         return res.json({
             status: "Ok",
-            message: "Successfully updatedddd",
-            category: updatedCategory
+            message: "Successfully updated",
+            category: updateResult
         });
 
-    } catch (error) {
-        console.log(error);
-        if (error.name === "ValidationError") {
+    } catch (err) {
+        console.log(err);
+        if (err.name === "ValidationError") {
 
             const errors = Object.entries(err.errors).map(([field, error]) => ({
                 field,
@@ -201,6 +248,9 @@ app.put("/category/update/:id", async (req, res) => {
     }
 });
 
+
+
+// database connection
 mongoose.connect("mongodb://127.0.0.1:27017/blog").then(() => {
     app.listen(port, () => {
         console.log(`Database & server is running...`)
