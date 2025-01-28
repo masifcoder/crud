@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
 const mongoose = require("mongoose");
-const port = 3001;
+const port = 3005;
 const PostModel = require("./models/Post");
+const bcrypt = require("bcrypt");
 
+const categoryRouter = require("./routes/CategoryRouter");  
+const userRouter = require("./routes/UserRouter");  
 
-const categoryRouter = require("./routes/CategoryRouter");    
 
 //middleware
 app.use(express.json());
@@ -50,66 +52,23 @@ const checkMiddleware = (req, res, next) => {
 
 
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
+app.get('/', async (req, res) => {
+   // const hashed = await bcrypt.hashSync("password", 10);
+
+    const hashed = bcrypt.compareSync("password", "$2b$10$/RNnucGkC8kLCSjdbjZcNe9E81T4kydL.8EcXkVbwn0/IL3I8Cctu");
+
+    res.json({
+        hashed: hashed
+    });
 
 });
 
 
-app.post("/create", async (req, res) => {
-    try {
-
-        const data = req.body;
-        // console.log(data);
-
-        // create a post
-        const newPost = await PostModel.create(data);
-
-
-        res.status(200).send({
-            status: "Ok",
-            message: "successfully created",
-            newPost: newPost
-        });
-
-    } catch (err) {
-        if (err.name === "ValidationError") {
-
-            const errors = Object.entries(err.errors).map(([field, error]) => ({
-                field,
-                message: error.message,
-            }));
-
-            return res.status(400).json({
-                status: "Fail",
-                errors: errors
-            });
-
-        } else {
-            console.error("Unexpected error:", err);
-        }
-
-    }
-});
-
-app.get("/posts", async (req, res) => {
-
-    try {
-        const posts = await PostModel.findById("67907f01b2eed548573e67d2");
-
-        return res.status(200).json({
-            status: "Ok",
-            posts: posts
-        });
-
-    } catch (error) {
-
-    }
-});
 
 
 // category
 app.use("/category", categoryRouter);
+app.use("/user", userRouter);
 
 
 
@@ -123,3 +82,11 @@ mongoose.connect("mongodb://127.0.0.1:27017/blog").then(() => {
     console.log(er.message)
 })
 
+
+
+// find the process
+// netstat -ano | findstr :3003
+
+
+// kill process
+//taskkill /PID 12060 /F
