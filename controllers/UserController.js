@@ -72,7 +72,7 @@ const Login = async (req, res) => {
             });
         }
 
-        console.log(user);
+        //console.log(user);
 
 
 
@@ -86,9 +86,8 @@ const Login = async (req, res) => {
             });
         }
 
-
         // generate a jwt token
-        const token = jwt.sign({ id: user._id }, secretKey);
+        const token = jwt.sign({ id: user._id }, secretKey, {expiresIn: "2h"});
 
         return res.status(200).json({
             status: "Ok",

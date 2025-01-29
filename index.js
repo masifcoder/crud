@@ -1,13 +1,16 @@
 const express = require('express');
 const app = express();
 const mongoose = require("mongoose");
-const port = 3005;
-const PostModel = require("./models/Post");
+const port = 3003;
 const bcrypt = require("bcrypt");
 
 const categoryRouter = require("./routes/CategoryRouter");  
 const userRouter = require("./routes/UserRouter");  
+const { Login } = require('./controllers/UserController');
+const postRouter = require('./routes/PostRouter');
 
+
+console.log(process.env.PORT);
 
 //middleware
 app.use(express.json());
@@ -49,7 +52,10 @@ const checkMiddleware = (req, res, next) => {
 
 };
 
-
+process.on("SIGHUP", function () {
+    reloadSomeConfiguration();
+    process.kill(process.pid, "SIGTERM");
+})
 
 
 app.get('/', async (req, res) => {
@@ -69,18 +75,19 @@ app.get('/', async (req, res) => {
 // category
 app.use("/category", categoryRouter);
 app.use("/user", userRouter);
-
+app.use("/post", postRouter);
 
 
 // database connection
 mongoose.connect("mongodb://127.0.0.1:27017/blog").then(() => {
     app.listen(port, () => {
         console.log(`Database & server is running...`)
-    })
+    });
 
 }).catch((er) => {
     console.log(er.message)
 })
+
 
 
 

@@ -3,6 +3,10 @@ const mongoose = require("mongoose");
 
 const postSchema = mongoose.Schema({
 
+    authorId: {
+        type: String,
+        required: true
+    },
     title: {
         type: String,
         required: true,
@@ -16,7 +20,8 @@ const postSchema = mongoose.Schema({
         type: Number,
         require: true,
         min: [5, "Minimum reading time is 5 mints"],
-        max: [25, "Maximum reading time is 25 minutes"]
+        max: [25, "Maximum reading time is 25 minutes"],
+        default: 5
     },
     isPublished: {
         type: Boolean,
@@ -25,7 +30,7 @@ const postSchema = mongoose.Schema({
     category: {
         type: String,
         required: true,
-        enum: ['mobiles', 'laptops']
+        default: "uncategories"
     }
 });
 

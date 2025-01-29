@@ -14,7 +14,7 @@ const createCategory = async (req, res) => {
             category: newCat
         });
 
-    } catch (error) {
+    } catch (err) {
         if (err.name === "ValidationError") {
 
             const errors = Object.entries(err.errors).map(([field, error]) => ({
