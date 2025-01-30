@@ -1,5 +1,4 @@
-
-const secretKey = "342qwsdfasdfdgt24rwsddfvb%#$@$%%*&ds24r2rsvdsvd";
+require('dotenv').config();
 const jwt = require("jsonwebtoken");
 
 const AuthCheck = async (req, res, next) => {
@@ -27,7 +26,7 @@ const AuthCheck = async (req, res, next) => {
         }
 
         // verify token is correct
-        const encoded = jwt.verify(token, secretKey);
+        const encoded = jwt.verify(token, process.env.JWT_KEY);
         req.userId = encoded.id;
 
         next();

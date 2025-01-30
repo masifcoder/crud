@@ -3,63 +3,61 @@ const app = express();
 const mongoose = require("mongoose");
 const port = 3003;
 const bcrypt = require("bcrypt");
+const path = require("path");
+require('dotenv').config();
 
-const categoryRouter = require("./routes/CategoryRouter");  
-const userRouter = require("./routes/UserRouter");  
+const categoryRouter = require("./routes/CategoryRouter");
+const userRouter = require("./routes/UserRouter");
 const { Login } = require('./controllers/UserController');
 const postRouter = require('./routes/PostRouter');
 
 
-console.log(process.env.PORT);
-
 //middleware
 app.use(express.json());
-
-// custom middlware on application level
-// app.use((req, res, next) => {
-
-//     console.log(`${req.method} ${req.url}`);
-//     console.log(req.query.q);
-//     if(req.query.q == "123") {
-
-//         req.qid = req.query.q;
-
-//         next();
-//     } else {
-//         res.status(400).json({
-//             message: "Id is not correct, You are not alloewd to go"
-//         })
-//     }
-
-// });
+app.use(express.static('uploads'));
 
 
-// Route level middleware
-const checkMiddleware = (req, res, next) => {
+// import multer
+const multer = require("multer");
+// const upload = multer({ dest: 'uploads/' });
 
-    console.log(`${req.method} ${req.url}`);
-    console.log(req.query.q);
-    if (req.query.q == "123") {
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        //cb(null, false);
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
 
-        req.qid = req.query.q;
+const upload = multer({
+    storage: storage
+});
 
-        next();
-    } else {
-        res.status(400).json({
-            message: "Id is not correct, You are not alloewd to go"
+
+
+app.post("/upload", upload.single("image"), async (req, res) => {
+    try {
+
+        console.log(req.file);
+
+
+        res.json({
+            status: "Done"
+        });
+
+    } catch (error) {
+        return res.status(404).json({
+            status: "Fail",
+            message: "file type in invalid"
         })
     }
-
-};
-
-process.on("SIGHUP", function () {
-    reloadSomeConfiguration();
-    process.kill(process.pid, "SIGTERM");
 })
 
 
 app.get('/', async (req, res) => {
-   // const hashed = await bcrypt.hashSync("password", 10);
+    // const hashed = await bcrypt.hashSync("password", 10);
 
     const hashed = bcrypt.compareSync("password", "$2b$10$/RNnucGkC8kLCSjdbjZcNe9E81T4kydL.8EcXkVbwn0/IL3I8Cctu");
 
@@ -68,7 +66,6 @@ app.get('/', async (req, res) => {
     });
 
 });
-
 
 
 

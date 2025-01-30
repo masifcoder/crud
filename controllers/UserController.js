@@ -1,8 +1,8 @@
 
 const UserModel = require("../models/User");
 const bcrypt = require("bcrypt");
-const secretKey = "342qwsdfasdfdgt24rwsddfvb%#$@$%%*&ds24r2rsvdsvd";
 const jwt = require("jsonwebtoken");
+require('dotenv').config();
 
 // singup api
 
@@ -75,7 +75,6 @@ const Login = async (req, res) => {
         //console.log(user);
 
 
-
         // check password is correct
         const passStatus = bcrypt.compareSync(data.password, user.password);
 
@@ -87,7 +86,7 @@ const Login = async (req, res) => {
         }
 
         // generate a jwt token
-        const token = jwt.sign({ id: user._id }, secretKey, {expiresIn: "2h"});
+        const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {expiresIn: "2h"});
 
         return res.status(200).json({
             status: "Ok",
@@ -113,7 +112,6 @@ const Login = async (req, res) => {
         }
     }
 }
-
 
 
 
