@@ -5,55 +5,42 @@ const port = 3003;
 const bcrypt = require("bcrypt");
 const path = require("path");
 require('dotenv').config();
+const multer = require("multer");
 
 const categoryRouter = require("./routes/CategoryRouter");
 const userRouter = require("./routes/UserRouter");
-const { Login } = require('./controllers/UserController');
 const postRouter = require('./routes/PostRouter');
+const upload = require('./helpers/ImageUpload');
 
 
 //middleware
 app.use(express.json());
+
+// serve static files like images/uploads folder
 app.use(express.static('uploads'));
 
 
-// import multer
-const multer = require("multer");
-// const upload = multer({ dest: 'uploads/' });
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-        //cb(null, false);
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({
-    storage: storage
-});
 
 
 
-app.post("/upload", upload.single("image"), async (req, res) => {
-    try {
 
-        console.log(req.file);
+// app.post("/upload", upload.single("image"), async (req, res) => {
+//     try {
+
+//         console.log('File: ', req.file);
 
 
-        res.json({
-            status: "Done"
-        });
+//         res.json({
+//             status: "Done"
+//         });
 
-    } catch (error) {
-        return res.status(404).json({
-            status: "Fail",
-            message: "file type in invalid"
-        })
-    }
-})
+//     } catch (error) {
+//         return res.status(404).json({
+//             status: "Fail",
+//             message: "file type in invalid"
+//         })
+//     }
+// })
 
 
 app.get('/', async (req, res) => {
@@ -69,14 +56,39 @@ app.get('/', async (req, res) => {
 
 
 
+
 // category
 app.use("/category", categoryRouter);
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 
 
+
+
+
+// Error handling middleware for Multer errors
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        // Handle Multer errors (e.g., file size limit exceeded)
+        return res.status(400).json({
+            success: false,
+            message: err.message || "File upload error.",
+        });
+    } else if (err) {
+        // Handle other errors (e.g., invalid file type)
+        return res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+    next();
+});
+
+
+
+
 // database connection
-mongoose.connect("mongodb://127.0.0.1:27017/blog").then(() => {
+mongoose.connect(process.env.MONGODB_URL).then(() => {
     app.listen(port, () => {
         console.log(`Database & server is running...`)
     });

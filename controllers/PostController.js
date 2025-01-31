@@ -6,6 +6,7 @@ const createPost = async (req, res) => {
     try {
         const data = req.body;
         data.authorId =  req.userId;
+        data.image = req.file.filename;
 
         const post = await PostModel.create(data);
         
@@ -35,5 +36,18 @@ const createPost = async (req, res) => {
 }
 
 
+const getAllPosts = async(req, res) => {
+    try {
+        const posts = await PostModel.find().populate("authorId", "name image");
 
-module.exports = {createPost}
+        return res.json({
+            status: "Ok",
+            posts: posts
+        });
+    } catch (error) {
+        
+    }
+}
+
+
+module.exports = {createPost, getAllPosts}

@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const postSchema = mongoose.Schema({
 
     authorId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     title: {
@@ -15,6 +16,11 @@ const postSchema = mongoose.Schema({
     content: {
         type: String,
         required: [true, "Content of the post is required"]
+    },
+    image: {
+        type: String,
+        required: false,
+        default: "post_image.jpg"
     },
     readingTime: {
         type: Number,
@@ -32,7 +38,7 @@ const postSchema = mongoose.Schema({
         required: true,
         default: "uncategories"
     }
-});
+}, { timestamps: true} );
 
 
 const PostModel = mongoose.model("Post", postSchema);
