@@ -6,6 +6,14 @@ const bcrypt = require("bcrypt");
 const path = require("path");
 require('dotenv').config();
 const multer = require("multer");
+const cors = require("cors");
+
+
+// handle cross origin resource sharing
+app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+}));
 
 const categoryRouter = require("./routes/CategoryRouter");
 const userRouter = require("./routes/UserRouter");

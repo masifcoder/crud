@@ -17,7 +17,7 @@ const Signup = async (req, res) => {
         if (already !== null) {
             return res.status(403).json({
                 status: "Fail",
-                message: "Email is already registered"
+                errors: "Email is already registered"
             });
         }
 
@@ -27,7 +27,8 @@ const Signup = async (req, res) => {
         await UserModel.create({
             name: data.name,
             email: data.email,
-            password: hashed
+            password: hashed,
+            image: req.file.filename
         });
 
         return res.status(201).json({
@@ -68,7 +69,7 @@ const Login = async (req, res) => {
         if (user === null) {
             return res.status(403).json({
                 status: "Fail",
-                message: "username or password is incorrect e"
+                errors: "username or password is incorrect e"
             });
         }
 
@@ -81,7 +82,7 @@ const Login = async (req, res) => {
         if (passStatus === false) {
             return res.status(403).json({
                 status: "Fail",
-                message: "username or password is incorrect p"
+                errors: "username or password is incorrect p"
             });
         }
 
