@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+require('dotenv').config();
 
 const postSchema = mongoose.Schema({
 
@@ -20,7 +20,10 @@ const postSchema = mongoose.Schema({
     image: {
         type: String,
         required: false,
-        default: "post_image.jpg"
+        default: "post_image.jpg",
+        get: (value) => {
+            return  process.env.SERVER_URL + value;
+        }
     },
     readingTime: {
         type: Number,
@@ -38,7 +41,10 @@ const postSchema = mongoose.Schema({
         required: true,
         default: "uncategories"
     }
-}, { timestamps: true} );
+}, {
+    timestamps: true, toJSON: { getters: true },
+    toObject: { getters: true },
+});
 
 
 const PostModel = mongoose.model("Post", postSchema);
