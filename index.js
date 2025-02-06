@@ -29,28 +29,6 @@ app.use(express.static('uploads'));
 
 
 
-
-
-
-// app.post("/upload", upload.single("image"), async (req, res) => {
-//     try {
-
-//         console.log('File: ', req.file);
-
-
-//         res.json({
-//             status: "Done"
-//         });
-
-//     } catch (error) {
-//         return res.status(404).json({
-//             status: "Fail",
-//             message: "file type in invalid"
-//         })
-//     }
-// })
-
-
 app.get('/', async (req, res) => {
     // const hashed = await bcrypt.hashSync("password", 10);
 
