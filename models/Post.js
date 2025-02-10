@@ -13,6 +13,10 @@ const postSchema = mongoose.Schema({
         required: true,
         minlength: [10, "Minimum length of title is 10"]
     },
+    excerpt: {
+        type: String,
+        required: [true, "Excerpt is required"]
+    },
     content: {
         type: String,
         required: [true, "Content of the post is required"]
@@ -34,7 +38,7 @@ const postSchema = mongoose.Schema({
     },
     isPublished: {
         type: Boolean,
-        default: false
+        default: true
     },
     category: {
         type: String,
