@@ -17,6 +17,7 @@ const createPost = async (req, res) => {
             post: post
         });
 
+
     } catch (err) {
         if (err.name === "ValidationError") {
 
@@ -79,5 +80,40 @@ const getSinglePost = async (req, res) => {
     }
 }
 
+const postDelete = async (req, res) => {
+    try {
+        
+        const authorId = req.userId;
+        const postId = req.params.id;
 
-module.exports = { createPost, getAllPosts, getSinglePost }
+        const authorObjectId = new mongoose.Types.ObjectId(authorId);
+        const postObjectId = new mongoose.Types.ObjectId(postId);
+   
+        // check user who is deleting is author of this post
+        const post = await PostModel.findOne( {_id: postObjectId, authorId: authorObjectId} );
+    
+        if(post === null) {
+            return res.status(403).json({
+                status: "Fail",
+                errors: "Post not found or unauthorize to delete"
+            });
+        }
+
+        // delete a post
+        await post.deleteOne();
+        return res.status(200).json({
+            status: "Ok",
+            errors: "Post successfully deleted"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "Fail",
+            errors: error.message
+        });
+    }
+
+}
+
+
+module.exports = { createPost, getAllPosts, getSinglePost, postDelete }
