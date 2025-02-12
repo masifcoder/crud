@@ -51,6 +51,22 @@ const getAllPosts = async (req, res) => {
     }
 }
 
+const getAllPostsByUser = async (req, res) => {
+    try {
+
+       // const authorObjectId = new mongoose.Types.ObjectId(req.userId);
+
+        const posts = await PostModel.find({authorId: req.userId}).populate("authorId", "name image");
+
+        return res.json({
+            status: "Ok",
+            posts: posts
+        });
+    } catch (error) {
+
+    }
+}
+
 
 const getSinglePost = async (req, res) => {
     try {
@@ -116,4 +132,4 @@ const postDelete = async (req, res) => {
 }
 
 
-module.exports = { createPost, getAllPosts, getSinglePost, postDelete }
+module.exports = { createPost, getAllPosts, getSinglePost, postDelete, getAllPostsByUser }
