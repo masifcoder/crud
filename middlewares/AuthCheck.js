@@ -34,7 +34,7 @@ const AuthCheck = async (req, res, next) => {
 
 
     } catch (error) {
-        return res.status(403).json({
+        return res.status(401).json({
             status: "Fail",
             message: "Authentication failed",
         });

@@ -37,10 +37,22 @@ const createPost = async (req, res) => {
     }
 }
 
-
 const getAllPosts = async (req, res) => {
     try {
-        const posts = await PostModel.find().populate("authorId", "name image");
+        const category = req.query.category;
+        const searchTerm  = req.query.search;
+
+        const query = {};
+        if(category != undefined) {
+            query.category = category;
+        }
+
+        // if(searchTerm != undefined) {
+        //     query.title = searchTerm;
+        // }
+
+
+        const posts = await PostModel.find(query).populate("authorId", "name image");
 
         return res.json({
             status: "Ok",
@@ -66,7 +78,6 @@ const getAllPostsByUser = async (req, res) => {
 
     }
 }
-
 
 const getSinglePost = async (req, res) => {
     try {
@@ -130,6 +141,5 @@ const postDelete = async (req, res) => {
     }
 
 }
-
 
 module.exports = { createPost, getAllPosts, getSinglePost, postDelete, getAllPostsByUser }
