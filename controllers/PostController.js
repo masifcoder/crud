@@ -1,6 +1,7 @@
 
 const mongoose = require("mongoose");
 const PostModel = require("../models/Post");
+const canDo = require("../helpers/ACL");
 
 
 const createPost = async (req, res) => {
@@ -40,19 +41,27 @@ const createPost = async (req, res) => {
 const getAllPosts = async (req, res) => {
     try {
         const category = req.query.category;
-        const searchTerm  = req.query.search;
+        const searchTerm = req.query.search;
+        const startDate = req.query.startDate;
+        const endDate = req.query.endDate;
 
         const query = {};
-        if(category != undefined) {
+        if (category != undefined) {
             query.category = category;
         }
 
-        // if(searchTerm != undefined) {
-        //     query.title = searchTerm;
-        // }
+        if (searchTerm != undefined) {
+            query.title = { $regex: searchTerm, $options: 'i' };
+        }
 
+        let posts = [];
 
-        const posts = await PostModel.find(query).populate("authorId", "name image");
+        if (startDate != undefined && endDate != undefined) {
+            query.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) }
+        }
+
+        posts = await PostModel.find(query).populate("authorId", "name image");
+
 
         return res.json({
             status: "Ok",
@@ -66,9 +75,9 @@ const getAllPosts = async (req, res) => {
 const getAllPostsByUser = async (req, res) => {
     try {
 
-       // const authorObjectId = new mongoose.Types.ObjectId(req.userId);
+        // const authorObjectId = new mongoose.Types.ObjectId(req.userId);
 
-        const posts = await PostModel.find({authorId: req.userId}).populate("authorId", "name image");
+        const posts = await PostModel.find({ authorId: req.userId }).populate("authorId", "name image");
 
         return res.json({
             status: "Ok",
@@ -109,20 +118,32 @@ const getSinglePost = async (req, res) => {
 
 const postDelete = async (req, res) => {
     try {
-        
+
         const authorId = req.userId;
         const postId = req.params.id;
 
+        const role = req.role;
+
+        
+
         const authorObjectId = new mongoose.Types.ObjectId(authorId);
         const postObjectId = new mongoose.Types.ObjectId(postId);
-   
+
         // check user who is deleting is author of this post
-        const post = await PostModel.findOne( {_id: postObjectId, authorId: authorObjectId} );
-    
-        if(post === null) {
+        const post = await PostModel.findOne({ _id: postObjectId, authorId: authorObjectId });
+
+        if (post === null) {
             return res.status(403).json({
                 status: "Fail",
                 errors: "Post not found or unauthorize to delete"
+            });
+        }
+
+
+        if (canDo(role, 'delete') == false) {
+            return res.status(403).json({
+                status: "Fail",
+                errors: "Unauthorize to delete"
             });
         }
 

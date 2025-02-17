@@ -1,5 +1,6 @@
 require('dotenv').config();
 const jwt = require("jsonwebtoken");
+const userModel = require("../models/User");
 
 const AuthCheck = async (req, res, next) => {
 
@@ -28,6 +29,10 @@ const AuthCheck = async (req, res, next) => {
         // verify token is correct
         const encoded = jwt.verify(token, process.env.JWT_KEY);
         req.userId = encoded.id;
+        const user = await userModel.findById(encoded.id);
+        req.role = user.role;
+        
+        console.log(user);
 
         next();
 
